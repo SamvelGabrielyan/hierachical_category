@@ -1984,11 +1984,6 @@ __webpack_require__.r(__webpack_exports__);
       status: true
     };
   },
-  // watch: {
-  //     categories(newValue, oldValue) {
-  //         // console.log('FROM WATCHER', newValue);
-  //     }
-  // },
   mounted: function mounted() {
     this.getData();
   },
@@ -2029,39 +2024,8 @@ __webpack_require__.r(__webpack_exports__);
     onChildClick: function onChildClick(value) {
       this.categories = value;
     },
-    allowDrag: function allowDrag(model, component) {
-      console.log(model);
-
-      if (model.parent_id === null) {
-        // can't be dragged
-        return false;
-      } // can be dragged
-
-
-      return true;
-    },
-    allowDrop: function allowDrop(model, component) {
-      if (model.name === 'Node 2-2') {
-        // can't be placed
-        return false;
-      } // can be placed
-
-
-      return true;
-    },
-    curNodeClicked: function curNodeClicked(model, component) {// console.log('curNodeClicked', model, component);
-    },
-    dragHandler: function dragHandler(model, component, e) {// console.log('dragHandler: ', model, component, e);
-    },
-    dragEnterHandler: function dragEnterHandler(model, component, e) {// console.log('dragEnterHandler: ', model, component, e);
-    },
-    dragLeaveHandler: function dragLeaveHandler(model, component, e) {// console.log('dragLeaveHandler: ', model, component, e);
-    },
-    dragOverHandler: function dragOverHandler(model, component, e) {// console.log('dragOverHandler: ', model, component, e);
-    },
-    dragEndHandler: function dragEndHandler(model, component, e) {// console.log('dragEndHandler: ', model, component, e);
-    },
-    dropHandler: function dropHandler(model, component, e) {// console.log('dropHandler: ', model, component, e);
+    onNestedClick: function onNestedClick(value) {
+      this.modalData = value;
     }
   }
 });
@@ -2168,6 +2132,21 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuedraggable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuedraggable */ "./node_modules/vuedraggable/dist/vuedraggable.common.js");
 /* harmony import */ var vuedraggable__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vuedraggable__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vue_context__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-context */ "./node_modules/vue-context/src/js/index.js");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2176,6 +2155,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     tasks: {
@@ -2183,7 +2163,13 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   components: {
-    draggable: vuedraggable__WEBPACK_IMPORTED_MODULE_0___default.a
+    draggable: vuedraggable__WEBPACK_IMPORTED_MODULE_0___default.a,
+    VueContext: vue_context__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  methods: {
+    onClick: function onClick(data) {
+      this.$emit('fromNested', data);
+    }
   },
   name: "nested-draggable"
 });
@@ -42810,7 +42796,8 @@ var render = function() {
                         ),
                         _vm._v(" "),
                         _c("nested-draggable", {
-                          attrs: { tasks: el.children }
+                          attrs: { tasks: el.children },
+                          on: { fromNested: _vm.onNestedClick }
                         })
                       ],
                       1
@@ -42822,15 +42809,17 @@ var render = function() {
               1
             ),
             _vm._v(" "),
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-primary",
-                attrs: { type: "button" },
-                on: { click: _vm.saveTree }
-              },
-              [_vm._v("Save")]
-            )
+            _vm.categories.length > 0
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-primary",
+                    attrs: { type: "button" },
+                    on: { click: _vm.saveTree }
+                  },
+                  [_vm._v("Save")]
+                )
+              : _vm._e()
           ],
           1
         ),
@@ -43091,15 +43080,78 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "draggable",
-    {
-      staticClass: "dragArea",
-      attrs: { tag: "ul", list: _vm.tasks, group: { name: "g1" } }
-    },
-    _vm._l(_vm.tasks, function(el) {
-      return _c("li", { key: el.name }, [_c("p", [_vm._v(_vm._s(el.name))])])
-    }),
-    0
+    "div",
+    [
+      _c(
+        "draggable",
+        {
+          staticClass: "dragArea",
+          attrs: { tag: "ul", list: _vm.tasks, group: { name: "g1" } }
+        },
+        _vm._l(_vm.tasks, function(el) {
+          return _c("div", { key: el.name }, [
+            _c(
+              "li",
+              {
+                on: {
+                  contextmenu: function($event) {
+                    $event.preventDefault()
+                    return _vm.$refs.menu.open($event, {
+                      name: el.name,
+                      id: el.id
+                    })
+                  }
+                }
+              },
+              [_c("p", [_vm._v(_vm._s(el.name))])]
+            )
+          ])
+        }),
+        0
+      ),
+      _vm._v(" "),
+      _c("vue-context", {
+        ref: "menu",
+        scopedSlots: _vm._u(
+          [
+            {
+              key: "default",
+              fn: function(child) {
+                return child.data
+                  ? [
+                      _c("li", [
+                        _c(
+                          "a",
+                          {
+                            attrs: {
+                              "data-toggle": "modal",
+                              "data-target": "#myModal"
+                            },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.onClick(child.data)
+                              }
+                            }
+                          },
+                          [
+                            _vm._v(
+                              "\n                    Edit Name\n                "
+                            )
+                          ]
+                        )
+                      ])
+                    ]
+                  : undefined
+              }
+            }
+          ],
+          null,
+          true
+        )
+      })
+    ],
+    1
   )
 }
 var staticRenderFns = []

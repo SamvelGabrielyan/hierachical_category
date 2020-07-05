@@ -11,12 +11,12 @@
                         <li @contextmenu.prevent="$refs.menu.open($event, { name: el.name, id: el.id })">
                             <p>{{ el.name }}</p>
                         </li>
-                        <nested-draggable :tasks="el.children"/>
+                        <nested-draggable v-on:fromNested="onNestedClick" :tasks="el.children"/>
                     </div>
                     </transition-group>
                 </draggable>
 
-                <button type="button" @click="saveTree" class="btn btn-primary">Save</button>
+                <button v-if="categories.length > 0" type="button" @click="saveTree" class="btn btn-primary">Save</button>
             </div>
             <div class="col-md-6 my-auto">
                 <div class="form-group">
@@ -64,11 +64,7 @@
                 status: true,
             }
         },
-        // watch: {
-        //     categories(newValue, oldValue) {
-        //         // console.log('FROM WATCHER', newValue);
-        //     }
-        // },
+
         mounted() {
             this.getData();
         },
@@ -106,45 +102,8 @@
             onChildClick(value) {
                 this.categories = value
             },
-
-
-            allowDrag(model, component) {
-                console.log(model);
-                if (model.parent_id === null) {
-                    // can't be dragged
-                    return false;
-                }
-                // can be dragged
-                return true;
-            },
-            allowDrop(model, component) {
-                if (model.name === 'Node 2-2') {
-                    // can't be placed
-                    return false;
-                }
-                // can be placed
-                return true;
-            },
-            curNodeClicked(model, component) {
-                // console.log('curNodeClicked', model, component);
-            },
-            dragHandler(model, component, e) {
-                // console.log('dragHandler: ', model, component, e);
-            },
-            dragEnterHandler(model, component, e) {
-                // console.log('dragEnterHandler: ', model, component, e);
-            },
-            dragLeaveHandler(model, component, e) {
-                // console.log('dragLeaveHandler: ', model, component, e);
-            },
-            dragOverHandler(model, component, e) {
-                // console.log('dragOverHandler: ', model, component, e);
-            },
-            dragEndHandler(model, component, e) {
-                // console.log('dragEndHandler: ', model, component, e);
-            },
-            dropHandler(model, component, e) {
-                // console.log('dropHandler: ', model, component, e);
+            onNestedClick(value) {
+                this.modalData = value
             }
         },
     }
